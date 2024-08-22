@@ -46,6 +46,12 @@
             "@php artisan key:generate --ansi",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
+        ],
+        "start-production": [
+            "Composer\\Config::disableProcessTimeout",
+            "php artisan key:generate",
+            "php artisan migrate",
+            "php artisan serve"
         ]
     },
     "extra": {
