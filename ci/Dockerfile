@@ -15,7 +15,9 @@ RUN apt-get update && apt-get install -y \
     libbz2-dev \
     libsodium-dev \
     zip \
-    unzip
+    unzip \
+    nginx \
+    supervisor
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -37,5 +39,9 @@ RUN composer install --no-dev --optimize-autoloader
 # Configure right permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Copy NGINX and Supervisor files
+COPY ci/nginx.conf /etc/nginx/nginx.conf
+COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Entrypoint
-ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80"]
+ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
