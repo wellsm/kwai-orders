@@ -1,5 +1,5 @@
 # Use base PHP image
-FROM php:8.2-apache
+FROM php:8.3-fpm as base
 
 # Define path
 WORKDIR /var/www/html
@@ -15,7 +15,9 @@ RUN apt-get update && apt-get install -y \
     libbz2-dev \
     libsodium-dev \
     zip \
-    unzip
+    unzip \
+    nginx \
+    supervisor
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -37,11 +39,12 @@ RUN composer install --no-dev --optimize-autoloader
 # Configure right permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Enable mod_rewrite to Laravel work correctly
-RUN a2enmod rewrite
+# Copy NGINX and Supervisor files
+COPY ci/nginx.conf /etc/nginx/nginx.conf
+COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose port 80
 EXPOSE 80
 
 # Entrypoint
-ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && apache2-foreground"]
+ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
