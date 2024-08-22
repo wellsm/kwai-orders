@@ -29,6 +29,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy files to container
 COPY . /var/www/html
 
+ENV APP_LOCALE='pt_BR'
+
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
