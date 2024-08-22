@@ -4,7 +4,7 @@ FROM php:8.3-fpm as base
 # Define path
 WORKDIR /var/www/html
 
-# IInstall system dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
