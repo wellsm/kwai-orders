@@ -44,4 +44,4 @@ RUN a2enmod rewrite
 EXPOSE 80
 
 # Entrypoint
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && apache2-foreground"]
