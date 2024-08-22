@@ -33,5 +33,5 @@ RUN a2enmod rewrite
 # Expôr a porta 80
 EXPOSE 80
 
-# Comando para iniciar o Apache
-CMD ["apache2-foreground"]
+# Definir o script de entrypoint
+ENTRYPOINT ["entrypoint.sh"]
