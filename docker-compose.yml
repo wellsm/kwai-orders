@@ -1,0 +1,41 @@
+volumes:
+  kwai-orders-mysql-data:
+    driver: local
+
+networks:
+  kwai-orders-network:
+    driver: bridge
+
+services:
+  kwai-orders-php:
+    build: ./docker/php
+    container_name: kwai-orders-php
+    volumes:
+      - .:/var/www/app
+    networks:
+      - "kwai-orders-network"
+
+  kwai-orders-nginx:
+    build: ./docker/nginx
+    container_name: kwai-orders-nginx
+    ports:
+      - "7040:8080"
+    volumes_from:
+      - kwai-orders-php
+    depends_on:
+      - kwai-orders-php
+    networks:
+      - "kwai-orders-network"
+
+  kwai-orders-mysql:
+    build: ./docker/mysql
+    container_name: kwai-orders-mysql
+    volumes:
+      - kwai-orders-mysql-data:/var/lib/mysql
+    ports:
+      - "7041:3306"
+    environment:
+      - "MYSQL_DATABASE=kwai_orders"
+      - "MYSQL_ROOT_PASSWORD=root"
+    networks:
+      - "kwai-orders-network"
