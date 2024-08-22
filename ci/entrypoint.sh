@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Criar application key
+# Generate Application key
 php artisan key:generate
 
-# Executar as migrações
+# Execute migrations
 php artisan migrate --force
 
-# Iniciar o Apache
+# Start Apache
 apache2-foreground

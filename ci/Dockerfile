@@ -1,37 +1,45 @@
-# Usar uma imagem base oficial do PHP com Apache
+# Use base PHP image
 FROM php:8.2-apache
 
-# Definir o diretório de trabalho
+# Define path
 WORKDIR /var/www/html
 
-# Instalar dependências do sistema
+# IInstall system dependencies
 RUN apt-get update && apt-get install -y \
     git \
-    unzip \
+    curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    libzip-dev \
+    libbz2-dev \
+    libsodium-dev \
     zip \
-    curl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+    unzip
 
-# Instalar Composer
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Extentions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip bz2 sodium intl
+
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar os arquivos da aplicação para o container
+# Copy files to container
 COPY . /var/www/html
 
-# Instalar dependências do PHP usando o Composer
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Configurar permissões corretas
+# Configure right permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Habilitar mod_rewrite para o Laravel funcionar corretamente
+# Enable mod_rewrite to Laravel work correctly
 RUN a2enmod rewrite
 
-# Expôr a porta 80
+# Expose port 80
 EXPOSE 80
 
-# Definir o script de entrypoint
+# Entrypoint
 ENTRYPOINT ["entrypoint.sh"]
