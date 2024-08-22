@@ -43,5 +43,10 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 COPY ci/nginx.conf /etc/nginx/nginx.conf
 COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Expose port 80
+EXPOSE 80
+
 # Entrypoint
-ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+# ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+
+ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80"]
