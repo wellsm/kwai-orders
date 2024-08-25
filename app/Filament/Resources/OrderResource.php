@@ -14,9 +14,11 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 
 class OrderResource extends Resource
 {
@@ -54,8 +56,8 @@ class OrderResource extends Resource
                     ->copyMessage('ID do Produto copiado')
                     ->copyMessageDuration(1500),
                 TextColumn::make('commission')
-                    ->label('Comissão')
-                    ->state(fn (Order $order) => "{$order->commission}%")
+                    ->label('%')
+                    ->state(fn(Order $order) => "{$order->commission}%")
                     ->alignCenter(),
                 TextColumn::make('price')
                     ->label('Preço')
@@ -64,7 +66,7 @@ class OrderResource extends Resource
                     ->label('Qtd')
                     ->alignCenter(),
                 TextColumn::make('revenue')
-                    ->label('Receita')
+                    ->label('Comissão')
                     ->money()
                     ->badge()
                     ->color('success')
@@ -79,7 +81,7 @@ class OrderResource extends Resource
                 Action::make('product')
                     ->label('Ver Produto')
                     ->link()
-                    ->url(fn (Order $order): string => "https://m-shop.kwai.com/krn-web/detail?itemId={$order->product}")
+                    ->url(fn(Order $order): string => "https://m-shop.kwai.com/krn-web/detail?itemId={$order->product}")
                     ->openUrlInNewTab()
             ])
             ->filtersFormColumns(3)
@@ -92,21 +94,44 @@ class OrderResource extends Resource
                                 ->placeholder('Ex: Fone de Ouvido X')
                         ])
                         ->query(function (Builder $query, array $data) {
-                            return $query->when($data['name'], fn (Builder $query) => $query->where('name', 'like', "%{$data['name']}%"));
+                            return $query->when($data['name'], fn(Builder $query) => $query->where('name', 'like', "%{$data['name']}%"));
                         })
-                        ->indicateUsing(fn (array $data) => $data['name'] ? "Pedidos que contém \"{$data['name']}\" no nome" : null),
-                    Filter::make('created_at')
+                        ->indicateUsing(fn(array $data) => $data['name'] ? "Pedidos que contém \"{$data['name']}\" no nome" : null),
+                    Filter::make('range')
                         ->form([
-                            DatePicker::make('created_at')
-                                ->label('Data')
+                            DateRangePicker::make('range')
+                                ->label('Data do Pedido')
                                 ->maxDate(now())
+                                ->startDate(now()->subMonth())
+                                ->endDate(now())
+                                ->maxSpan(['months' => 3])
+                                ->autoApply(),
                         ])
                         ->query(function (Builder $query, array $data) {
-                            return $query->when($data['created_at'], fn (Builder $query) => $query->whereDate('created_at', $data['created_at']));
+                            return $query->when($data['range'], function (Builder $query, string $range) {
+                                [$from, $to] = explode(' - ', $range);
+
+                                $from = Carbon::createFromFormat('d/m/Y', $from)->startOfDay();
+                                $to   = Carbon::createFromFormat('d/m/Y', $to)->endOfDay();
+
+                                return $query->whereBetween('created_at', [$from, $to]);
+                            });
                         })
-                        ->indicateUsing(fn (array $data) => $data['created_at'] ? "Pedidos do dia " . Carbon::parse($data['created_at'])->format('d/m/Y') : null),
-                ], 
-                layout: FiltersLayout::AboveContent
+                        ->indicateUsing(function (array $data) {
+                            if (empty($data['range'])) {
+                                return null;
+                            }
+
+                            [$from, $to] = explode(' - ', $data['range']);
+
+                            if ($from === $to) {
+                                return "Pedidos do dia {$from}";
+                            }
+
+                            return "Pedidos entre os dias {$from} e {$to}";
+                        }),
+                ],
+                layout: FiltersLayout::AboveContentCollapsible
             )
             ->persistFiltersInSession()
             ->deferFilters();
