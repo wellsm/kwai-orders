@@ -4,16 +4,19 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrderResource extends Resource
 {
@@ -36,15 +39,13 @@ class OrderResource extends Resource
     {
         return $table
             ->striped()
+            ->pluralModelLabel('Pedidos')
             ->defaultSort('created_at', 'desc')
-            ->searchOnBlur()
-            ->searchPlaceholder('Buscar')
             ->columns([
                 TextColumn::make('id')
                     ->label('ID'),
                 TextColumn::make('name')
                     ->label('Nome')
-                    ->searchable()
                     ->wrap()
                     ->lineClamp(2),
                 TextColumn::make('product')
@@ -58,15 +59,18 @@ class OrderResource extends Resource
                     ->alignCenter(),
                 TextColumn::make('price')
                     ->label('Preço')
-                    ->money('BRL'),
+                    ->money(),
                 TextColumn::make('quantity')
                     ->label('Qtd')
                     ->alignCenter(),
                 TextColumn::make('revenue')
                     ->label('Receita')
-                    ->money('BRL')
+                    ->money()
                     ->badge()
-                    ->color('success'),
+                    ->color('success')
+                    ->summarize([
+                        Sum::make()->money()->label('')
+                    ]),
                 TextColumn::make('created_at')
                     ->label('Data')
                     ->dateTime(),
@@ -79,20 +83,33 @@ class OrderResource extends Resource
                     ->openUrlInNewTab()
             ])
             ->filtersFormColumns(3)
-            ->filters([
-                /* Filter::make('name')
-                    ->form([
-                        TextInput::make('name')
-                            ->label('Nome')
-                            ->placeholder('Ex: Fone de Ouvido X')
-                    ]),
-                Filter::make('created_at')
-                    ->form([
-                        DatePicker::make('created_at')
-                            ->label('Data')
-                            ->maxDate(now())
-                            ->default(now()->subDay()->toDateString())
-                    ]) */], layout: FiltersLayout::AboveContent);
+            ->filters(
+                filters: [
+                    Filter::make('name')
+                        ->form([
+                            TextInput::make('name')
+                                ->label('Nome')
+                                ->placeholder('Ex: Fone de Ouvido X')
+                        ])
+                        ->query(function (Builder $query, array $data) {
+                            return $query->when($data['name'], fn (Builder $query) => $query->where('name', 'like', "%{$data['name']}%"));
+                        })
+                        ->indicateUsing(fn (array $data) => $data['name'] ? "Pedidos que contém \"{$data['name']}\" no nome" : null),
+                    Filter::make('created_at')
+                        ->form([
+                            DatePicker::make('created_at')
+                                ->label('Data')
+                                ->maxDate(now())
+                        ])
+                        ->query(function (Builder $query, array $data) {
+                            return $query->when($data['created_at'], fn (Builder $query) => $query->whereDate('created_at', $data['created_at']));
+                        })
+                        ->indicateUsing(fn (array $data) => $data['created_at'] ? "Pedidos do dia " . Carbon::parse($data['created_at'])->format('d/m/Y') : null),
+                ], 
+                layout: FiltersLayout::AboveContent
+            )
+            ->persistFiltersInSession()
+            ->deferFilters();
     }
 
     public static function getNavigationLabel(): string
