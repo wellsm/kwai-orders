@@ -20,7 +20,17 @@ class RegisterTeam extends RegisterTenant
     {
         return $form
             ->schema([
-                TextInput::make('name'),
+                TextInput::make('name')
+                    ->required()
+                    ->live(true)
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
+                TextInput::make('slug')
+                    ->disabled()
+                    ->required()
+                    ->unique(Team::class, 'slug')
+                    ->validationMessages([
+                        'unique' => 'O nome informado já está sendo utilizado'
+                    ]),
             ]);
     }
  

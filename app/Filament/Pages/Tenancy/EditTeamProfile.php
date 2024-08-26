@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Filament\Pages\Tenancy;
- 
+
+use App\Models\Team;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Pages\Tenancy\EditTenantProfile;
@@ -19,7 +20,14 @@ class EditTeamProfile extends EditTenantProfile
     {
         return $form
             ->schema([
-                TextInput::make('name'),
+                TextInput::make('name')
+                    ->required()
+                    ->live(true)
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
+                TextInput::make('slug')
+                    ->disabled()
+                    ->required()
+                    ->unique(Team::class, 'slug'),
             ]);
     }
 
