@@ -3,12 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
-use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Flowframe\Trend\Trend;
+use Flowframe\Trend\TrendValue;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Number;
 
 class OrderOverview extends StatsOverviewWidget
@@ -17,21 +19,17 @@ class OrderOverview extends StatsOverviewWidget
 
     public function getStats(): array
     {
-        $date  = $this->filters['date'];
-        $start = $date ? Carbon::parse($date)->subDays(6)->startOfDay() : now()->subDays(7)->startOfDay();
-        $end   = $date ? Carbon::parse($date)->endOfDay() : now()->subDay()->endOfDay();
+        $date  = $this->filters['date'] ?? now();
+        $start = Carbon::parse($date)->subDays(6)->startOfDay();
+        $end   = Carbon::parse($date)->endOfDay();
 
-        /** @var Collection */
-        $orders = Order::query()
-            ->where('team_id', Filament::getTenant()->id)
-            ->whereBetween('created_at', [$start, $end])
-            ->get();
+        $trend = Trend::query(Order::query()->where('team_id', Filament::getTenant()->id))
+            ->between($start, $end)
+            ->perDay();
 
-        $grouped = $orders->groupBy(fn (Order $order) => $order->getCreatedAt()->toDateString());
-
-        $revenue = $this->stats($grouped, 'revenue');
-        $orders  = $this->stats(grouped: $grouped, format: false);
-        $sales   = $this->stats($grouped, 'price');
+        $revenue = $this->stats($trend, 'revenue');
+        $orders  = $this->stats(trend: $trend, format: false);
+        $sales   = $this->stats($trend, 'price');
 
         $stats = fn (Stat $stat, array $item) => empty($item['charts'])
             ? $stat
@@ -40,7 +38,6 @@ class OrderOverview extends StatsOverviewWidget
                 ->chart($item['charts'])
                 ->color($item['color']);
 
-
         return [
             $stats(Stat::make('Receita', "R$ {$revenue['value']}"), $revenue),
             $stats(Stat::make('Pedidos', $orders['value']), $orders),
@@ -48,16 +45,18 @@ class OrderOverview extends StatsOverviewWidget
         ];
     }
 
-    private function stats(Collection $grouped, ?string $property = null, bool $format = true): array
+    private function stats(Trend $trend, ?string $property = null, bool $format = true): array
     {
-        $method    = fn (?Collection $items) => $property ? $items?->sum($property) : $items?->count();
-        $charts    = $grouped->map(fn (Collection $orders) => $method($orders))->toArray();
-        $diff      = $method($grouped->last()) - $method($grouped->reverse()->skip(1)->take(1)->first());
+        $method    = fn (?Trend $trend) => $property ? $trend?->sum($property) : $trend?->count();
+        $result    = $method($trend);
+        $charts    = $result->map(fn (TrendValue $value) => $value->aggregate);
+        $diff      = $charts->last() - $charts->reverse()->skip(1)->take(1)->first();
         $situation = $diff === 0 ? 'equal' : ($diff < 0 ? 'decrease' : 'increase');
+        $value     = $result->last();
 
         return [
-            'charts'    => $charts,
-            'value'     => Number::format($method($grouped->last()) ?? 0, 2),
+            'charts'    => $charts->toArray(),
+            'value'     => $format ? Number::format($value->aggregate, 2) : $value->aggregate,
             'situation' => match ($situation) {
                 'equal'    => 'igual',
                 'increase' => 'a mais',

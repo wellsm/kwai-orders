@@ -5,6 +5,7 @@
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 font-bold">
                     <tr>
                         <td scope="col" class="px-6 py-2">Data</td>
+                        <td scope="col" class="px-6 py-2">Comissão</td>
                         <td scope="col" class="px-6 py-2">Receita</td>
                         <td scope="col" class="px-6 py-2">Pedidos</td>
                     </tr>
@@ -15,8 +16,15 @@
                             <td class="px-6 py-1">{{ $item['date'] }}</td>
                             <td class="px-6 py-1">
                                 <span
+                                    style="--c-50:var(--warning-50);--c-400:var(--warning-400);--c-600:var(--warning-600);"
+                                    class="fi-badge flex items-center justify-center rounded-md text-xs font-medium ring-1 ring-inset min-w-[theme(spacing.6)] py-1 bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30">R$
+                                    {{ $item['commission'] }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-1">
+                                <span
                                     style="--c-50:var(--success-50);--c-400:var(--success-400);--c-600:var(--success-600);"
-                                    class="fi-badge flex items-center justify-center rounded-md text-xs font-medium ring-1 ring-inset min-w-[theme(spacing.6)] py-1 fi-color-custom bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30 fi-color-success">R$
+                                    class="fi-badge flex items-center justify-center rounded-md text-xs font-medium ring-1 ring-inset min-w-[theme(spacing.6)] py-1 bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30">R$
                                     {{ $item['revenue'] }}
                                 </span>
                             </td>
@@ -37,7 +45,7 @@
                 </div>
                 <div class="text-sm flex justify-end gap-2">
                     <span class="font-bold text-lg">Total: </span>
-                    <span class="text-lg">R$ {{ Number::format($latest->sum('revenue')) }}</span>
+                    <span class="text-lg">R$ {{ Number::format($latest->sum('total')) }}</span>
                 </div>
             </div>
     </x-filament::section>

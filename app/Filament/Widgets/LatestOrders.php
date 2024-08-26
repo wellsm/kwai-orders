@@ -3,14 +3,19 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
-use Carbon\Carbon;
+use App\Models\Revenue;
+use DateInterval;
+use DatePeriod;
+use DateTime;
 use Filament\Facades\Filament;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\Widget;
+use Flowframe\Trend\Trend;
+use Flowframe\Trend\TrendValue;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class LatestOrders extends Widget
 {
@@ -28,24 +33,50 @@ class LatestOrders extends Widget
 
     protected function getViewData(): array
     {
-        $date  = $this->filters['date'];
-        $start = $date ? Carbon::parse($date)->subDays(6)->startOfDay() : now()->subDays(7)->startOfDay();
-        $end   = $date ? Carbon::parse($date)->endOfDay() : now()->subDay()->endOfDay();
+        $period = $this->getPeriod();
+        $orders = Trend::query(Order::query()->where('team_id', Filament::getTenant()->id))
+            ->between($period->getStartDate(), $period->getEndDate())
+            ->perDay();
 
-        /** @var Collection */
-        $orders = Order::query()
-            ->where('team_id', Filament::getTenant()->id)
-            ->whereBetween('created_at', [$start, $end])
-            ->get();
+        $revenues = Trend::query(Revenue::query()->where('team_id', Filament::getTenant()->id))
+            ->between($period->getStartDate(), $period->getEndDate())
+            ->perDay();
 
-        $latest = $orders->groupBy(fn (Order $order) => $order->getCreatedAt()->format('d/m/Y'))
-            ->map(fn (Collection $orders, string $date) => [
-                'date'    => $date,
-                'revenue' => $orders->sum('revenue'),
-                'orders'  => $orders->count()
-            ])
-            ->values();
+        $aggregator = fn (Collection $items) => $items
+            ->mapWithKeys(fn (TrendValue $value) => [$value->date => $value->aggregate])
+            ->toArray();
+
+        $commission = $aggregator($orders->sum('revenue'));
+        $orders     = $aggregator($orders->count());
+        $revenue    = $aggregator($revenues->sum('value'));
+
+        $latest = collect(iterator_to_array($period))
+            ->map(function (DateTime $date) use ($commission, $orders, $revenue) {
+                $key        = $date->format('Y-m-d');
+                $revenue    = $revenue[$key];
+                $commission = $commission[$key];
+
+                return [
+                    'date'       => $date->format('d/m/Y'),
+                    'revenue'    => $revenue,
+                    'orders'     => $orders[$key],
+                    'commission' => $commission,
+                    'total'      => $revenue + $commission,
+                ];
+            });
 
         return compact('latest');
+    }
+
+    private function getPeriod(): DatePeriod
+    {
+        $start = now()->subDays(6)->startOfDay();
+        $end   = now()->endOfDay();
+
+        return new DatePeriod(
+            start: $start,
+            interval: new DateInterval('P1D'),
+            end: $end
+        );
     }
 }
