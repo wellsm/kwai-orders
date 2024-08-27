@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nginx \
+    procps \
     supervisor
 
 # Clear cache
@@ -47,6 +48,6 @@ COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 EXPOSE 80
 
 # Entrypoint
-ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate --force && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
 
 # ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80"]
