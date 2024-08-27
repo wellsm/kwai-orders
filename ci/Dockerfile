@@ -2,7 +2,7 @@
 FROM php:8.3-fpm as base
 
 # Define path
-WORKDIR /var/www/html
+WORKDIR /var/www/app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -29,7 +29,7 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip bz2 sodiu
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy files to container
-COPY . /var/www/html
+COPY . /var/www/app
 
 ENV APP_LOCALE='pt_BR'
 
@@ -37,16 +37,16 @@ ENV APP_LOCALE='pt_BR'
 RUN composer install --no-dev --optimize-autoloader
 
 # Configure right permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/app/storage /var/www/app/bootstrap/cache
 
 # Copy NGINX and Supervisor files
-COPY ci/nginx.conf /etc/nginx/nginx.conf
+COPY ci/nginx.conf /etc/nginx/conf.d/default.conf
 COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose port 80
 EXPOSE 80
 
 # Entrypoint
-# ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
 
-ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80"]
+# ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80"]
