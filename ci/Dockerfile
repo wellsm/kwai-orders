@@ -41,7 +41,7 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www/app/storage /var/www/app/bootstrap/cache
 
 # Copy NGINX and Supervisor files
-COPY ci/nginx.conf /etc/nginx/nginx.conf
+COPY ci/default.conf /etc/nginx/conf.d/default.conf
 COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose port 80
