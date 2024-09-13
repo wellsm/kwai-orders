@@ -37,7 +37,7 @@ COPY . /var/www/app
 ENV APP_LOCALE='pt_BR'
 
 # Install PHP dependencies
-RUN composer install --no-dev
+RUN composer install --no-dev --optimize-autoloader
 
 # Install NPM dependencies and build assets
 RUN npm install
@@ -49,6 +49,9 @@ RUN chown -R www-data:www-data /var/www/app/storage /var/www/app/bootstrap/cache
 # Copy NGINX and Supervisor files
 COPY ci/default.conf /etc/nginx/sites-enabled/default
 COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy entrypoint script
+COPY ci/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Expose port 80
 EXPOSE 80
