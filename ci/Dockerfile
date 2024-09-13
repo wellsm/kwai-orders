@@ -53,6 +53,9 @@ COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Copy entrypoint script
 COPY ci/entrypoint.sh /usr/local/bin/entrypoint.sh
 
+# Give execution permissions to the entrypoint script
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Expose port 80
 EXPOSE 80
 
