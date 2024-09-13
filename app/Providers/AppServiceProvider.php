@@ -3,11 +3,11 @@
 namespace App\Providers;
 
 use Carbon\Carbon;
-use Filament\Support\Assets\Css;
-use Filament\Support\Facades\FilamentAsset;
+use Filament\Support\Facades\FilamentView;
 use Filament\Tables\Table;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 
@@ -34,8 +34,9 @@ class AppServiceProvider extends ServiceProvider
         Number::useLocale(config('app.locale'));
         Carbon::setLocale(config('app.locale'));
 
-        FilamentAsset::register([
-            Css::make('admin-css', Vite::asset('resources/css/app.css', 'build'))
-        ]);
+        FilamentView::registerRenderHook(
+            name: PanelsRenderHook::HEAD_END,
+            hook: fn (): string => Blade::render("@vite('resources/css/app.css')")
+        );
     }
 }
