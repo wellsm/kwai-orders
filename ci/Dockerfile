@@ -36,12 +36,12 @@ COPY . /var/www/app
 
 ENV APP_LOCALE='pt_BR'
 
+# Install PHP dependencies
+RUN composer install --no-dev
+
 # Install NPM dependencies and build assets
 RUN npm install
 RUN npm run build
-
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
 
 # Configure right permissions
 RUN chown -R www-data:www-data /var/www/app/storage /var/www/app/bootstrap/cache

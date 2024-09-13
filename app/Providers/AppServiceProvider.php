@@ -18,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if (env('APP_ENV') !== 'local') {
+        if (config('app.env') !== 'local') {
             URL::forceScheme(scheme: 'https');
         }
     }
@@ -28,11 +28,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Table::$defaultNumberLocale = env('APP_LOCALE');
+        Table::$defaultNumberLocale = config('app.locale');
         Table::$defaultCurrency = 'BRL';
         
-        Number::useLocale(env('APP_LOCALE'));
-        Carbon::setLocale(env('APP_LOCALE'));
+        Number::useLocale(config('app.locale'));
+        Carbon::setLocale(config('app.locale'));
 
         FilamentAsset::register([
             Css::make('admin-css', Vite::asset('resources/css/app.css', 'build'))
