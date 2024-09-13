@@ -23,14 +23,6 @@ class LatestOrders extends Widget
 
     protected static string $view = 'filament.widgets.latest-orders';
 
-    public static function infolist(Infolist $infolist): Infolist
-    {
-        return $infolist
-            ->schema([
-                TextEntry::make('date')
-            ]);
-    }
-
     protected function getViewData(): array
     {
         $period = $this->getPeriod();
@@ -57,7 +49,7 @@ class LatestOrders extends Widget
                 $commission = $commission[$key];
 
                 return [
-                    'date'       => $date->format('d/m/Y'),
+                    'date'       => $date,
                     'revenue'    => $revenue,
                     'orders'     => $orders[$key],
                     'commission' => $commission,

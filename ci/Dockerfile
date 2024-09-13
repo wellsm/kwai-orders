@@ -18,7 +18,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nginx \
     procps \
-    supervisor
+    supervisor \
+    nodejs \
+    npm
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -37,6 +39,10 @@ ENV APP_LOCALE='pt_BR'
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Install NPM dependencies and build assets
+RUN npm install
+RUN npm run build
+
 # Configure right permissions
 RUN chown -R www-data:www-data /var/www/app/storage /var/www/app/bootstrap/cache
 
@@ -47,7 +53,5 @@ COPY ci/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Expose port 80
 EXPOSE 80
 
-# Entrypoint
-ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate --force && php artisan migrate --force && exec supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
-
-# ENTRYPOINT ["/bin/sh", "-c" , "php artisan key:generate && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=80"]
+# Use the entrypoint script
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

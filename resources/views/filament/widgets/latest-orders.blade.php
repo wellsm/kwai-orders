@@ -1,34 +1,37 @@
 <x-filament-widgets::widget>
     <x-filament::section>
-        <div class="py-3">
-            <table class="w-full text-sm">
+        <div class="py-4 overflow-x-auto">
+            <table class="w-full text-sm table-auto">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 font-bold">
                     <tr>
-                        <td scope="col" class="px-6 py-2">Data</td>
-                        <td scope="col" class="px-6 py-2">Comissão</td>
-                        <td scope="col" class="px-6 py-2">Receita</td>
-                        <td scope="col" class="px-6 py-2">Pedidos</td>
+                        <td scope="col" class="px-3 py-2 text-center">Data</td>
+                        <td scope="col" class="px-3 py-2 text-center">Comissão</td>
+                        <td scope="col" class="px-3 py-2 text-center">Receita</td>
+                        <td scope="col" class="px-3 py-2 text-center">Qtd</td>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($latest as $item)
-                        <tr class="border-b  dark:border-gray-700">
-                            <td class="px-6 py-1">{{ $item['date'] }}</td>
-                            <td class="px-6 py-1">
+                        <tr class="border-b dark:border-gray-700">
+                            <td class="px-3 py-1 text-center">
+                                <span class="hidden sm:flex">{{ $item['date']->format('d/m/Y') }}</span>
+                                <span class="sm:hidden">{{ $item['date']->format('d/m') }}</span>
+                            </td>
+                            <td class="px-3 py-1 text-center">
                                 <span
-                                    style="--c-50:var(--warning-50);--c-400:var(--warning-400);--c-600:var(--warning-600);"
-                                    class="fi-badge flex items-center justify-center rounded-md text-xs font-medium ring-1 ring-inset min-w-[theme(spacing.6)] py-1 bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30">R$
-                                    {{ $item['commission'] }}
+                                    class="flex justify-center rounded-md text-xs font-medium ring-1 ring-inset py-1 bg-warning-50 text-warning-600 ring-warning-600/10 dark:bg-warning-400/10 dark:text-warning-400 dark:ring-warning-400/30 w-full">
+                                    <span class="hidden sm:flex">R$&nbsp;</span>
+                                    {{ Number::format($item['commission'], 2) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-1">
+                            <td class="px-3 py-1 text-center">
                                 <span
-                                    style="--c-50:var(--success-50);--c-400:var(--success-400);--c-600:var(--success-600);"
-                                    class="fi-badge flex items-center justify-center rounded-md text-xs font-medium ring-1 ring-inset min-w-[theme(spacing.6)] py-1 bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30">R$
-                                    {{ $item['revenue'] }}
+                                    class="flex justify-center rounded-md text-xs font-medium ring-1 ring-inset py-1 bg-success-50 text-success-600 ring-success-600/10 dark:bg-success-400/10 dark:text-success-400 dark:ring-success-400/30 w-full">
+                                    <span class="hidden sm:flex">R$&nbsp;</span>
+                                    {{ Number::format($item['revenue'], 2) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-1 text-left">{{ $item['orders'] }}</td>
+                            <td class="px-3 py-1 text-center">{{ $item['orders'] }}</td>
                         </tr>
                     @empty
                         <tr class="border-b  dark:border-gray-700">
@@ -44,8 +47,8 @@
                     <p class="text-sm text-gray-400 dark:text-gray-600">Últimos 7 dias</p>
                 </div>
                 <div class="text-sm flex justify-end gap-2">
-                    <span class="font-bold text-lg">Total: </span>
-                    <span class="text-lg">R$ {{ Number::format($latest->sum('total')) }}</span>
+                    <span class="font-bold text-base sm:text-lg">Total: </span>
+                    <span class="text-base sm:text-lg">R$ {{ Number::format($latest->sum('total'), 2) }}</span>
                 </div>
             </div>
     </x-filament::section>

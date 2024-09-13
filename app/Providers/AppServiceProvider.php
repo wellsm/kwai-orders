@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use Carbon\Carbon;
+use Filament\Support\Assets\Css;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
 
@@ -30,5 +33,9 @@ class AppServiceProvider extends ServiceProvider
         
         Number::useLocale(env('APP_LOCALE'));
         Carbon::setLocale(env('APP_LOCALE'));
+
+        FilamentAsset::register([
+            Css::make('admin-css', Vite::asset('resources/css/app.css', 'build'))
+        ]);
     }
 }
