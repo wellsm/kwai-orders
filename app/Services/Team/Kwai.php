@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Http;
 
 class Kwai
 {
-    private const CACHE_KEY = 'kwai-profile-%s';
+    private const CACHE_KEY   = 'kwai-profile-%s';
+    private const PROFILE_URL = 'https://www.kwai.com/@%s';
 
     private bool $withAvatar = false;
 
@@ -46,6 +47,7 @@ class Kwai
         return new KwaiProfileResponse(
             username: $username,
             name: $feeds[0]['user_name'],
+            url: sprintf(self::PROFILE_URL, $username),
             avatar: $avatar
         );
     }

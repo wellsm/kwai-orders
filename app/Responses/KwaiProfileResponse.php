@@ -9,6 +9,7 @@ class KwaiProfileResponse
     public function __construct(
         private string $username,
         private string $name,
+        private string $url,
         private ?string $avatar = null,
         private ?array $feeds = []
     ) { }
@@ -21,6 +22,11 @@ class KwaiProfileResponse
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
     }
 
     public function getAvatar(): ?string

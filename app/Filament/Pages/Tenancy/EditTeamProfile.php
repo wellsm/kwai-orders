@@ -24,10 +24,10 @@ class EditTeamProfile extends EditTenantProfile
             ->columns(2)
             ->schema([
                 TextInput::make('name')
-                    ->label(__('Name'))
+                    ->label('Nome')
                     ->disabled(),
                 TextInput::make('username')
-                    ->label(__('Nickname'))
+                    ->label('ID da Conta')
                     ->disabled(),
                 TextInput::make('url')
                     ->label('URL do Perfil')
@@ -51,6 +51,7 @@ class EditTeamProfile extends EditTenantProfile
             ->get($data['url']);
 
         return array_merge($data, [
+            'url'      => $response->getUrl(),
             'username' => $response->getUsername(),
             'name'     => $response->getName(),
             'avatar'   => $response->getAvatar(),

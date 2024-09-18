@@ -45,6 +45,7 @@ class RegisterTeam extends RegisterTenant
             ->get($data['url']);
 
         return array_merge($data, [
+            'url'      => $response->getUrl(),
             'username' => $response->getUsername(),
             'name'     => $response->getName(),
             'avatar'   => $response->getAvatar(),
