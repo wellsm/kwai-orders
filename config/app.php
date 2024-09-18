@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+
+    'features' => [
+        'register' => env('FEATURE_REGISTER', false)
+    ]
 ];
