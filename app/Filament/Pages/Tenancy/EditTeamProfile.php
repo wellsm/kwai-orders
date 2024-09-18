@@ -14,7 +14,7 @@ class EditTeamProfile extends EditTenantProfile
 {
     public static function getLabel(): string
     {
-        return 'Editar Time';
+        return 'Alterar Conta';
     }
 
     public function form(Form $form): Form

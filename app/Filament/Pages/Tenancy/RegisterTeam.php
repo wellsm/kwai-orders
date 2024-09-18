@@ -15,7 +15,7 @@ class RegisterTeam extends RegisterTenant
 {
     public static function getLabel(): string
     {
-        return 'Criar Time';
+        return 'Adicionar Conta';
     }
  
     public function form(Form $form): Form
