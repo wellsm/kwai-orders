@@ -30,6 +30,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('/')
             ->login()
+            ->loginRouteSlug('login')
+            ->profile()
+            ->registration()
             ->colors([
                 'primary' => Color::Yellow,
             ])
@@ -59,6 +62,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->tenant(Team::class, ownershipRelationship: 'team', slugAttribute: 'slug')
             ->tenantRegistration(RegisterTeam::class)
-            ->tenantProfile(EditTeamProfile::class);
+            ->tenantProfile(EditTeamProfile::class)
+            ->spa()
+            ->databaseTransactions();
     }
 }

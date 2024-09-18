@@ -2,12 +2,14 @@
 
 namespace App\Filament\Pages\Tenancy;
  
-use App\Models\Team;
+use App\Rules\KwaiProfile;
+use App\Services\Team\Kwai;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Pages\Tenancy\RegisterTenant;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class RegisterTeam extends RegisterTenant
 {
@@ -19,27 +21,40 @@ class RegisterTeam extends RegisterTenant
     public function form(Form $form): Form
     {
         return $form
+            ->extraAttributes(['id' => 'profile-form'])
             ->schema([
-                TextInput::make('name')
+                TextInput::make('url')
+                    ->label('URL do Perfil')
                     ->required()
-                    ->live(true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
-                TextInput::make('slug')
-                    ->disabled()
-                    ->required()
-                    ->unique(Team::class, 'slug')
-                    ->validationMessages([
-                        'unique' => 'O nome informado já está sendo utilizado'
-                    ]),
+                    ->rules([new KwaiProfile()]),
             ]);
     }
- 
-    protected function handleRegistration(array $data): Team
+
+    protected function onValidationError(ValidationException $exception): void
     {
-        $slug = Str::slug($data['name']);
-        $team = Team::create(array_merge($data, compact('slug')));
-        $team->members()->attach(Auth::user());
+        Notification::make()
+            ->title($exception->getMessage())
+            ->danger()
+            ->send();
+    }
+
+    protected function mutateFormDataBeforeRegister(array $data): array
+    {
+        $response = (new Kwai())
+            ->withAvatar()
+            ->get($data['url']);
+
+        return array_merge($data, [
+            'username' => $response->getUsername(),
+            'name'     => $response->getName(),
+            'avatar'   => $response->getAvatar(),
+            'posts'    => $response->getFeeds()->count(),
+            'slug'     => $response->getUsername(),
+        ]);
+    }
  
-        return $team;
+    protected function afterRegister(): void
+    {
+        $this->tenant->members()->attach(Auth::user());
     }
 }

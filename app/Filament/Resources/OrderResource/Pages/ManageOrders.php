@@ -7,7 +7,6 @@ use App\Services\Order\OrderImport;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Actions;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageOrders extends ManageRecords
@@ -32,6 +31,7 @@ class ManageOrders extends ManageRecords
                 ->form([
                     Textarea::make('content')
                         ->label('Conteúdo')
+                        ->required()
                         ->rows(20)
                 ])
                 ->using(function (array $data): Model {

@@ -2,12 +2,13 @@
 
 namespace App\Filament\Pages\Tenancy;
 
-use App\Models\Team;
+use App\Rules\KwaiProfile;
+use App\Services\Team\Kwai;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Pages\Tenancy\EditTenantProfile;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class EditTeamProfile extends EditTenantProfile
 {
@@ -15,28 +16,45 @@ class EditTeamProfile extends EditTenantProfile
     {
         return 'Editar Time';
     }
- 
+
     public function form(Form $form): Form
     {
         return $form
+            ->extraAttributes(['id' => 'profile-form'])
+            ->columns(2)
             ->schema([
                 TextInput::make('name')
+                    ->label(__('Name'))
+                    ->disabled(),
+                TextInput::make('username')
+                    ->label(__('Nickname'))
+                    ->disabled(),
+                TextInput::make('url')
+                    ->label('URL do Perfil')
                     ->required()
-                    ->live(true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
-                TextInput::make('slug')
-                    ->disabled()
-                    ->required()
-                    ->unique(Team::class, 'slug'),
+                    ->rules([new KwaiProfile()]),
             ]);
     }
 
-    protected function handleRecordUpdate(Model $record, array $data): Model
+    protected function onValidationError(ValidationException $exception): void
     {
-        $slug = Str::slug($data['name']);
+        Notification::make()
+            ->title($exception->getMessage())
+            ->danger()
+            ->send();
+    }
 
-        $record->update(array_merge($data, compact('slug')));
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $response = (new Kwai())
+            ->withAvatar()
+            ->get($data['url']);
 
-        return $record;
+        return array_merge($data, [
+            'username' => $response->getUsername(),
+            'name'     => $response->getName(),
+            'avatar'   => $response->getAvatar(),
+            'posts'    => $response->getFeeds()->count()
+        ]);
     }
 }

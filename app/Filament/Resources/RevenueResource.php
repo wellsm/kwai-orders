@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\RevenueResource\Pages;
 use App\Models\Revenue;
 use Carbon\Carbon;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -21,7 +20,7 @@ class RevenueResource extends Resource
 {
     protected static ?string $model = Revenue::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
     public static function form(Form $form): Form
     {

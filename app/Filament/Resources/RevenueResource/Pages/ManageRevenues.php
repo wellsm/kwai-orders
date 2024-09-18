@@ -28,12 +28,15 @@ class ManageRevenues extends ManageRecords
                 ->modelLabel('Pedido')
                 ->form([
                     TextInput::make('name')
-                        ->label('Nome'),
+                        ->label('Nome')
+                        ->required(),
                     TextInput::make('value')
                         ->label('Receita')
-                        ->numeric(),
+                        ->numeric()
+                        ->required(),
                     DatePicker::make('created_at')
                         ->label('Data da Receita')
+                        ->before('today')
                 ])
                 ->using(function (array $data): Model {
                     return Revenue::create(array_merge($data, [
@@ -49,6 +52,7 @@ class ManageRevenues extends ManageRecords
                 ->form([
                     Textarea::make('content')
                         ->label('Conteúdo')
+                        ->required()
                         ->rows(20)
                 ])
                 ->using(function (array $data): Model {
