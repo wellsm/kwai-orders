@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Widgets\BestSellers;
 use App\Filament\Widgets\LatestOrders;
 use App\Filament\Widgets\OrderOverview;
 use App\Filament\Widgets\OrdersChart;
@@ -35,6 +36,7 @@ class Dashboard extends BaseDashboard
             OrderOverview::class,
             OrdersChart::class,
             LatestOrders::class,
+            BestSellers::class,
         ];
     }
 }
