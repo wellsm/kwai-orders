@@ -3,13 +3,13 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
+use App\Models\Revenue;
 use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Number;
 
@@ -27,10 +27,16 @@ class OrderOverview extends StatsOverviewWidget
             ->between($start, $end)
             ->perDay();
 
-        $revenue = $this->stats($trend, 'revenue');
-        $orders  = $this->stats(trend: $trend, format: false);
-        $sales   = $this->stats($trend, 'price');
+        $commission = $this->stats($trend, 'revenue');
+        $orders     = $this->stats(trend: $trend, format: false);
+        $sales      = $this->stats($trend, 'price');
 
+        $trend = Trend::query(Revenue::query()->where('team_id', Filament::getTenant()->id))
+            ->between($start, $end)
+            ->perDay();
+    
+        $revenue = $this->stats($trend, 'value');
+        
         $stats = fn (Stat $stat, array $item) => empty($item['charts'])
             ? $stat
             : $stat->description("{$item['diff']} {$item['situation']}")
@@ -39,6 +45,7 @@ class OrderOverview extends StatsOverviewWidget
                 ->color($item['color']);
 
         return [
+            $stats(Stat::make('Comissão', "R$ {$commission['value']}"), $commission),
             $stats(Stat::make('Receita', "R$ {$revenue['value']}"), $revenue),
             $stats(Stat::make('Pedidos', $orders['value']), $orders),
             $stats(Stat::make('Vendas', "R$ {$sales['value']}"), $sales),
