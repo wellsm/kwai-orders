@@ -39,7 +39,7 @@ class LatestOrders extends Widget
             ->toArray();
 
         $commission = $aggregator($orders->sum('revenue'));
-        $orders     = $aggregator($orders->count());
+        $orders     = $aggregator($orders->sum('quantity'));
         $revenue    = $aggregator($revenues->sum('value'));
 
         $latest = collect(iterator_to_array($period))
