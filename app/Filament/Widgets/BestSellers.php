@@ -6,6 +6,7 @@ use App\Models\Order;
 use DateInterval;
 use DatePeriod;
 use Filament\Facades\Filament;
+use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Flowframe\Trend\Trend;
@@ -15,7 +16,7 @@ class BestSellers extends ChartWidget
 {
     use InteractsWithPageFilters;
 
-    protected static ?string $heading = 'Mais Vendidos';
+    protected static ?string $heading = '5 Produtos Mais Vendidos';
 
     protected static ?string $pollingInterval = null;
 
@@ -40,7 +41,7 @@ class BestSellers extends ChartWidget
             ->map(fn(Collection $orders, string $product) => [
                 'product'  => $product,
                 'quantity' => $orders->sum('quantity'),
-                'name'     => str($products[$product])->limit(80)
+                'name'     => str($products[$product])->limit(70)
             ])
             ->sortByDesc('quantity')
             ->take(5);
@@ -48,7 +49,7 @@ class BestSellers extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Produtos mais vendidos',
+                    'label' => '5 Produtos mais vendidos',
                     'data'  => $data->pluck('quantity')->toArray(),
                     'backgroundColor' => [
                         '#003f5c',
@@ -65,25 +66,36 @@ class BestSellers extends ChartWidget
         ];
     }
 
-    protected function getOptions(): array
+    protected function getOptions(): RawJs
     {
-        return [
-            'plugins' => [
-                'legend' => [
-                    'display'  => true,
-                    'position' => 'bottom',
-                    'align'    => 'start',
-                ],
-            ],
-            'scales' => [
-                'x' => [
-                    'display' => false
-                ],
-                'y' => [
-                    'display' => false
-                ]
-            ]
-        ];
+        return RawJs::make(<<<JS
+            {
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        align: 'start',
+                    },
+                    
+                    tooltip: {
+                        usePointStyle: true,
+                        boxPadding: 6,
+                        callbacks: {
+                            label: ({ parsed }) => parsed,
+                            title: ([ { label } ]) => label,
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        display: false
+                    }
+                }
+            }
+        JS);
     }
 
     protected function getType(): string
