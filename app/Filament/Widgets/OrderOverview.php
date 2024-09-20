@@ -28,7 +28,7 @@ class OrderOverview extends StatsOverviewWidget
             ->perDay();
 
         $commission = $this->stats($trend, 'revenue');
-        $orders     = $this->stats(trend: $trend, format: false);
+        $orders     = $this->stats($trend, 'quantity', false);
         $sales      = $this->stats($trend, 'price');
 
         $trend = Trend::query(Revenue::query()->where('team_id', Filament::getTenant()->id))

@@ -13,7 +13,7 @@
                 <tbody>
                     @forelse ($latest as $item)
                         <tr class="border-b dark:border-gray-700">
-                            <td class="px-3 py-1 text-center">
+                            <td class="px-3 py-1 flex items-center justify-center">
                                 <span class="hidden sm:flex">{{ $item['date']->format('d/m/Y') }}</span>
                                 <span class="sm:hidden">{{ $item['date']->format('d/m') }}</span>
                             </td>

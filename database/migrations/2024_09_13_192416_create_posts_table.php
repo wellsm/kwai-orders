@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignIdFor(Product::class)->nullable()->constrained();
             $table->string('title', 2000);
             $table->unsignedInteger('views')->default(0);
-            $table->unsignedInteger('quantity')->default(0);
             $table->boolean('notify')->default(1);
             $table->timestamps();
         });
