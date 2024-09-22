@@ -54,7 +54,7 @@ class Team extends Model implements HasAvatar
         return $this->getAttribute('username');
     }
 
-    public function getSyncedAt(): CarbonInterface
+    public function getSyncedAt(): ?CarbonInterface
     {
         return $this->getAttribute('synced_at');
     }

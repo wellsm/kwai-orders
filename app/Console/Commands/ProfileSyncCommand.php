@@ -57,7 +57,7 @@ class ProfileSyncCommand extends Command
             return 0;
         }
 
-        if ($team->getSyncedAt()->isToday()) {
+        if ($team->getSyncedAt()?->isToday()) {
             return 0;
         }
 
