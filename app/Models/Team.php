@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use DateTime;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +21,12 @@ class Team extends Model implements HasAvatar
         'url',
         'username',
         'avatar',
-        'posts'
+        'posts',
+        'sync_at'
+    ];
+
+    protected $casts = [
+        'synced_at' => 'datetime'
     ];
 
     public function members(): BelongsToMany
@@ -35,5 +42,39 @@ class Team extends Model implements HasAvatar
     public function getFilamentAvatarUrl(): ?string
     {
         return Storage::url($this->avatar);
+    }
+
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
+    public function getUsername(): string
+    {
+        return $this->getAttribute('username');
+    }
+
+    public function getSyncedAt(): CarbonInterface
+    {
+        return $this->getAttribute('synced_at');
+    }
+
+    public function setSyncedAt(DateTime $syncedAt): self
+    {
+        $this->setAttribute('synced_at', $syncedAt);
+
+        return $this;
+    }
+
+    public function getSyncAt(): string
+    {
+        return $this->getAttribute('sync_at');
+    }
+
+    public function setSyncAt(string $syncAt): self
+    {
+        $this->setAttribute('sync_at', $syncAt);
+
+        return $this;
     }
 }

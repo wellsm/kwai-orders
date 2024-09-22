@@ -1,8 +1,13 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Console\Commands\ProfileSyncCommand;
+use App\Models\Team;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
+Team::all()
+    ->each(function (Team $team) {
+        Schedule::command(ProfileSyncCommand::class, [$team->getUsername(), $team->getSyncAt()])
+            ->everyMinute()
+            ->appendOutputTo(storage_path('logs/profile-sync.log'))
+            ->withoutOverlapping();
+    });

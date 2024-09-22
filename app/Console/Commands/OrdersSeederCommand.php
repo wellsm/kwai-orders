@@ -13,7 +13,7 @@ use Faker\Generator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class OrdersSeeder extends Command implements Isolatable
+class OrdersSeederCommand extends Command implements Isolatable
 {
     protected $signature = 'app:orders:seed
         {--min=10}
