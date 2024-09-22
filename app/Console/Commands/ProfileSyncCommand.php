@@ -45,7 +45,7 @@ class ProfileSyncCommand extends Command
 
         if (
             isset($time)
-            && Carbon::parse($time)->notEqualTo($minute)
+            && Carbon::parse($time)->startOfMinute()->notEqualTo($minute)
         ) {
             return 0;
         }
@@ -53,11 +53,11 @@ class ProfileSyncCommand extends Command
         $team = Team::query()->where('username', $profile)->firstOrFail();
         $time = $time ?? $team->getSyncAt();
 
-        if (Carbon::parse($time)->notEqualTo($minute)) {
-            return 0;
-        }
-
-        if ($team->getSyncedAt()?->isToday()) {
+        if (
+            empty($time)
+            || Carbon::parse($time)->startOfMinute()->notEqualTo($minute)
+            || $team->getSyncedAt()?->isToday()
+        ) {
             return 0;
         }
 
