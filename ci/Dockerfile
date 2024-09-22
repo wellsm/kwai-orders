@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y \
     procps \
     supervisor \
     nodejs \
-    npm
+    npm \
+    cron 
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
