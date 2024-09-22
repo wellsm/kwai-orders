@@ -40,7 +40,7 @@ class ProfileSyncCommand extends Command
             return 0;
         }
 
-        $time   = $this->argument(self::OPTION_TIME);
+        $time   = $this->argument(self::OPTION_TIME) ?: null;
         $minute = now()->startOfMinute();
 
         if (

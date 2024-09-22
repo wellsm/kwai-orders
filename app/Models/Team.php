@@ -66,7 +66,7 @@ class Team extends Model implements HasAvatar
         return $this;
     }
 
-    public function getSyncAt(): string
+    public function getSyncAt(): ?string
     {
         return $this->getAttribute('sync_at');
     }
