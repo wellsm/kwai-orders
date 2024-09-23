@@ -6,6 +6,7 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Tenancy\EditTeamProfile;
 use App\Filament\Pages\Tenancy\RegisterTeam;
 use App\Models\Team;
+use App\Services\Settings\Config;
 use App\Settings\GeneralSettings;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -37,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->loginRouteSlug('login')
             ->profile()
-            ->when(fn () => app(GeneralSettings::class)->registration, fn (Panel $panel) => $panel->registration())
+            ->when(fn () => Config::get('registration') ?? false, fn (Panel $panel) => $panel->registration())
             ->colors([
                 'primary' => Color::Yellow,
             ])
