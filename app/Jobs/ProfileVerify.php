@@ -8,6 +8,7 @@ use DateTime;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\Utils;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RequestOptions;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -77,7 +78,10 @@ class ProfileVerify implements ShouldQueue, ShouldBeUnique
     private function getNewResponses(Collection $products): array
     {
         $promises = [];
-        $client   = new Client();
+        $client   = new Client([
+            RequestOptions::TIMEOUT         => 10,
+            RequestOptions::CONNECT_TIMEOUT => 10,
+        ]);
 
         foreach ($products as $id) {
             $promises[$id] = $client->getAsync(sprintf(self::BASE_URL_TO_VERIFY, $id));
