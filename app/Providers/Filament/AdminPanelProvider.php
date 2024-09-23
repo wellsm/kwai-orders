@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->loginRouteSlug('login')
             ->profile()
-            ->when(app(GeneralSettings::class)->registration, fn (Panel $panel) => $panel->registration())
+            ->when(fn () => app(GeneralSettings::class)->registration, fn (Panel $panel) => $panel->registration())
             ->colors([
                 'primary' => Color::Yellow,
             ])
