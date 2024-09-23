@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('views')->default(0);
             $table->boolean('notify')->default(1);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -5,8 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
 use Carbon\Carbon;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -62,10 +60,11 @@ class OrderResource extends Resource
                     ->label('Comissão')
                     ->money()
                     ->badge()
-                    ->color('success')
+                    ->color(fn (Order $order) => $order->revenue == 0 ? 'gray' : 'success')
                     ->summarize([
                         Sum::make()->money()->label('')
-                    ]),
+                    ])
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Data')
                     ->dateTime(),
