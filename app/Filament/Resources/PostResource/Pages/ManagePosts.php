@@ -49,6 +49,7 @@ class ManagePosts extends ManageRecords
                 ->badge(
                     Post::query()
                         ->where('team_id', Filament::getTenant()->id)
+                        ->where('notify', true)
                         ->count()
                 ),
             'out-of-stock' => Tab::make()
@@ -57,6 +58,7 @@ class ManagePosts extends ManageRecords
                     Post::query()
                         ->whereHas('product', fn(Builder $query) => $query->where('quantity', 0))
                         ->whereHas('team', fn(Builder $query) => $query->where('id', Filament::getTenant()->id)->whereNotNull('verified_at'))
+                        ->where('notify', true)
                         ->count()
                 )
                 ->modifyQueryUsing(fn(Builder $query) => $query->whereHas('product', fn(Builder $query) => $query->where('quantity', 0))),
@@ -66,9 +68,19 @@ class ManagePosts extends ManageRecords
                     Post::query()
                         ->where('team_id', Filament::getTenant()->id)
                         ->whereNull('product_id')
+                        ->where('notify', true)
                         ->count()
                 )
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('product_id')),
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('product_id')->orderBy('notify', 'DESC')),
+            'dont-notify' => Tab::make()
+                ->label('Não Notificar')
+                ->badge(
+                    Post::query()
+                        ->where('team_id', Filament::getTenant()->id)
+                        ->where('notify', false)
+                        ->count()
+                )
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('notify', false)),
         ];
     }
 
