@@ -6,6 +6,7 @@ use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Tenancy\EditTeamProfile;
 use App\Filament\Pages\Tenancy\RegisterTeam;
 use App\Models\Team;
+use App\Settings\GeneralSettings;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -23,6 +24,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Saade\FilamentLaravelLog\FilamentLaravelLogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -35,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->loginRouteSlug('login')
             ->profile()
-            ->when(config('app.features.register'), fn (Panel $panel) => $panel->registration())
+            ->when(app(GeneralSettings::class)->registration, fn (Panel $panel) => $panel->registration())
             ->colors([
                 'primary' => Color::Yellow,
             ])
@@ -69,6 +71,13 @@ class AdminPanelProvider extends PanelProvider
             ->tenantMenuItems([
                 'register' => MenuItem::make()->label('Adicionar Conta'),
                 'profile'  => MenuItem::make()->label('Alterar Conta')
+            ])
+            ->plugins([
+                FilamentLaravelLogPlugin::make()
+                    ->navigationGroup('Sistema')
+                    ->authorize(
+                        fn() => Auth::user()->id === 1
+                    )
             ])
             ->spa()
             ->databaseTransactions();

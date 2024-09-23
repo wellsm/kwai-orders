@@ -122,9 +122,4 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
-
-    'features' => [
-        'register' => env('FEATURE_REGISTER', false)
-    ]
 ];
