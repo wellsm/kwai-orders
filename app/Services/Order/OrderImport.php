@@ -6,13 +6,21 @@ use App\Models\Order;
 use ArrayIterator;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 
 class OrderImport
 {
+    private const LIMIT_EXCEEDED_MESSAGES = [
+        'Alguns pedidos não foram importados',
+        'Ultimo Pedido: :order',
+        'Pedido feito: :date'
+    ];
+
     public function run(string $content): Order
     {
         $iterator = new \ArrayIterator(explode(PHP_EOL, $content));
+        $count    = $iterator->count();
         $iterator = $this->removeExtraContent($iterator);
         $orders   = [];
 
@@ -23,6 +31,21 @@ class OrderImport
                 $result = $this->orders($iterator);
                 $orders = array_merge($orders, $result);
             } catch (\Exception) {}
+        }
+
+        if ($count !== $iterator->count()) {
+            $last = end($orders);
+            $body = strtr(implode('<br>', self::LIMIT_EXCEEDED_MESSAGES), [
+                ':order' => $last['id'],
+                ':date'  => $last['created_at']->format('Y/m/d H:i:s')
+            ]);
+
+            Notification::make()
+                ->title('Limite de caracteres excedido')
+                ->body($body)
+                ->persistent()
+                ->info()
+                ->send();
         }
 
         data_fill($orders, '*.team_id', Filament::getTenant()->id);
