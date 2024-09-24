@@ -41,7 +41,7 @@ class BestSellers extends ChartWidget
             ->map(fn(Collection $orders, string $product) => [
                 'product'  => $product,
                 'quantity' => $orders->sum('quantity'),
-                'name'     => str($products[$product])->limit(70)
+                'name'     => str($products[$product])->limit(110)
             ])
             ->sortByDesc('quantity')
             ->take(5);
