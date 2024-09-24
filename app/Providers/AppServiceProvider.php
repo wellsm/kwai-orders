@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Team;
 use Carbon\Carbon;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\Table;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Number;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,5 +40,7 @@ class AppServiceProvider extends ServiceProvider
             name: PanelsRenderHook::HEAD_END,
             hook: fn (): string => Blade::render("@vite('resources/css/app.css')")
         );
+
+        Cashier::useCustomerModel(Team::class);
     }
 }

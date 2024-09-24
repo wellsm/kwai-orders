@@ -25,6 +25,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Maartenpaauw\Filament\Cashier\Stripe\BillingProvider;
 use Saade\FilamentLaravelLog\FilamentLaravelLogPlugin;
 
 class AdminPanelProvider extends PanelProvider
@@ -36,7 +37,6 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('/')
             ->login()
-            ->loginRouteSlug('login')
             ->profile()
             ->when(fn () => Config::get('registration') ?? false, fn (Panel $panel) => $panel->registration())
             ->colors([
@@ -73,6 +73,8 @@ class AdminPanelProvider extends PanelProvider
                 'register' => MenuItem::make()->label('Adicionar Conta'),
                 'profile'  => MenuItem::make()->label('Alterar Conta')
             ])
+            ->tenantBillingProvider(new BillingProvider())
+            ->requiresTenantSubscription()
             ->plugins([
                 FilamentLaravelLogPlugin::make()
                     ->navigationGroup('Sistema')
@@ -80,7 +82,6 @@ class AdminPanelProvider extends PanelProvider
                         fn() => Auth::user()->id === 1
                     )
             ])
-            ->spa()
             ->databaseTransactions();
     }
 }

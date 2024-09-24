@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Cashier\Billable;
 
 class Team extends Model implements HasAvatar
 {
-    use HasFactory;
+    use HasFactory, Billable;
 
     protected $fillable = [
         'name',
