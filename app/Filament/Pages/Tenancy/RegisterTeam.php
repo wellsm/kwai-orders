@@ -21,7 +21,7 @@ class RegisterTeam extends RegisterTenant
     public function form(Form $form): Form
     {
         return $form
-            ->extraAttributes(['id' => 'profile-form'])
+            ->extraAttributes(['class' => 'form-without-validation'])
             ->schema([
                 TextInput::make('url')
                     ->label('URL do Perfil')

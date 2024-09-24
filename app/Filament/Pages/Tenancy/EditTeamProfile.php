@@ -26,7 +26,7 @@ class EditTeamProfile extends EditTenantProfile
     public function form(Form $form): Form
     {
         return $form
-            ->extraAttributes(['id' => 'profile-form'])
+            ->extraAttributes(['class' => 'form-without-validation'])
             ->columns(2)
             ->schema([
                 TextInput::make('name')

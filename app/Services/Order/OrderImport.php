@@ -3,6 +3,7 @@
 namespace App\Services\Order;
 
 use App\Models\Order;
+use ArrayIterator;
 use Carbon\Carbon;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,7 @@ class OrderImport
     public function run(string $content): Order
     {
         $iterator = new \ArrayIterator(explode(PHP_EOL, $content));
+        $iterator = $this->removeExtraContent($iterator);
         $orders   = [];
 
         $this->proceed($iterator);
@@ -60,6 +62,9 @@ class OrderImport
         $id     = preg_replace('/[^0-9]/', '', $this->line($iterator));
         $status = $this->line($iterator);
 
+        error_log($id);
+        error_log($status);
+
         while (mb_substr($iterator->current(), 0, 1) != '*') {
             $name       = $this->line($iterator);
             $product    = preg_replace('/[^0-9]/', '', $this->line($iterator));
@@ -85,5 +90,23 @@ class OrderImport
         $this->proceed($iterator);
 
         return $orders;
+    }
+
+    private function removeExtraContent(ArrayIterator $iterator): ArrayIterator
+    {
+        $lines = iterator_to_array($iterator);
+        $lines = array_reverse($lines);
+
+        foreach ($lines as $i => $line) {
+            if (str_contains($line, 'Liquidado')) {
+                break;
+            }
+
+            unset($lines[$i]);
+        }
+
+        return new ArrayIterator(
+            array: array_reverse($lines)
+        );
     }
 }

@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-#profile-form .fi-fo-field-wrp-error-message {
+.form-without-validation .fi-fo-field-wrp-error-message {
     @apply hidden;
 }
