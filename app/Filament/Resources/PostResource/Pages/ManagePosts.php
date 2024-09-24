@@ -11,11 +11,17 @@ use Filament\Facades\Filament;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Builder;
 
 class ManagePosts extends ManageRecords
 {
     protected static string $resource = PostResource::class;
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
 
     protected function getHeaderActions(): array
     {

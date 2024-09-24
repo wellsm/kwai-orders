@@ -11,10 +11,16 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
+use Filament\Support\Enums\MaxWidth;
 
 class Dashboard extends BaseDashboard
 {
     use HasFiltersForm;
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
 
     public function filtersForm(Form $form): Form
     {

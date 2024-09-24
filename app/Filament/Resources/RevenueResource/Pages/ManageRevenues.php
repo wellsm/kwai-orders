@@ -11,6 +11,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Model;
 
 class ManageRevenues extends ManageRecords
@@ -18,6 +19,11 @@ class ManageRevenues extends ManageRecords
     protected static string $resource = RevenueResource::class;
 
     protected static ?string $title = 'Receitas';
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
 
     protected function getHeaderActions(): array
     {

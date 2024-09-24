@@ -4,9 +4,11 @@ namespace App\Filament\Pages;
 
 use App\Settings\GeneralSettings;
 use Filament\Forms;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Pages\SettingsPage;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,9 +26,16 @@ class ManageSettings extends SettingsPage
     {
         return $form
             ->schema([
-                Toggle::make('registration')
-                    ->label('Habilitar Registro?')
+                Section::make([
+                    Toggle::make('registration')
+                        ->label('Habilitar Registro?')
+                ]),
             ]);
+    }
+
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
     }
 
     public function getHeading(): string|Htmlable

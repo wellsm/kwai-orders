@@ -8,10 +8,16 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Tenancy\EditTenantProfile;
+use Filament\Support\Enums\MaxWidth;
 use Illuminate\Validation\ValidationException;
 
 class EditTeamProfile extends EditTenantProfile
 {
+    public function getMaxContentWidth(): MaxWidth
+    {
+        return MaxWidth::Full;
+    }
+
     public static function getLabel(): string
     {
         return 'Alterar Conta';
