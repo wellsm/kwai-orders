@@ -5,7 +5,7 @@ namespace App\Filament\Resources\RevenueResource\Pages;
 use App\Filament\Resources\RevenueResource;
 use App\Models\Revenue;
 use App\Services\Revenue\RevenueImport;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
@@ -28,7 +28,7 @@ class ManageRevenues extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make('insert-revenue')
+            CreateAction::make('insert-revenue')
                 ->outlined()
                 ->label('Inserir Receita')
                 ->modelLabel('Pedido')
@@ -50,7 +50,7 @@ class ManageRevenues extends ManageRecords
                         'hash'    => md5($data['name'] . $data['value'] . $data['created_at'])
                     ]));
                 }),
-            Actions\CreateAction::make('import-revenues')
+            CreateAction::make('import-revenues')
                 ->outlined()
                 ->createAnother(false)
                 ->label('Importar Receitas')

@@ -7,6 +7,7 @@ use App\Jobs\ProfileSync;
 use App\Models\Post;
 use App\Models\Team;
 use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
 use Filament\Facades\Filament;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ManageRecords;
@@ -30,8 +31,9 @@ class ManagePosts extends ManageRecords
         $date = $team->getSyncedAt()?->format('d/m/Y H:i:s') ?? 'N/A';
 
         return [
-            Action::make('sync')
+            CreateAction::make('sync')
                 ->label('Sincronizar Posts')
+                ->createAnother(false)
                 ->outlined()
                 ->disabled(
                     $team->getSyncedAt()?->addHours(6)?->isFuture() ?? false

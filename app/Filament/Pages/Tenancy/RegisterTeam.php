@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Filament\Pages\Tenancy;
- 
+
+use App\Enums\Plan;
 use App\Rules\KwaiProfile;
 use App\Services\Team\Kwai;
 use Filament\Forms\Components\TextInput;
@@ -51,6 +52,7 @@ class RegisterTeam extends RegisterTenant
             'avatar'   => $response->getAvatar(),
             'posts'    => $response->getFeeds()->count(),
             'slug'     => $response->getUsername(),
+            'plan'     => Plan::Basic
         ]);
     }
  

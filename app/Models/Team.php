@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Plan;
 use Carbon\CarbonInterface;
 use DateTime;
 use Filament\Models\Contracts\HasAvatar;
@@ -22,12 +23,14 @@ class Team extends Model implements HasAvatar
         'username',
         'avatar',
         'posts',
-        'sync_at'
+        'sync_at',
+        'plan'
     ];
 
     protected $casts = [
         'synced_at'   => 'datetime',
-        'verified_at' => 'datetime'
+        'verified_at' => 'datetime',
+        'plan'        => Plan::class
     ];
 
     public function members(): BelongsToMany
@@ -94,5 +97,10 @@ class Team extends Model implements HasAvatar
         $this->setAttribute('sync_at', $syncAt);
 
         return $this;
+    }
+
+    public function isPlan(Plan $plan): bool
+    {
+        return $this->getAttribute('plan')->allowed($plan);
     }
 }

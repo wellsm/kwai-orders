@@ -5,7 +5,7 @@ namespace App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource;
 use App\Services\Order\OrderImport;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Support\Enums\MaxWidth;
@@ -29,7 +29,7 @@ class ManageOrders extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make('import-orders')
+            CreateAction::make('import-orders')
                 ->outlined()
                 ->createAnother(false)
                 ->label('Importar Pedidos')
