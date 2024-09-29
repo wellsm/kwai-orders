@@ -23,11 +23,10 @@ return [
             'wsHost' => env('VITE_PUSHER_HOST'),
             'wsPort' => env('VITE_PUSHER_PORT'),
             'wssPort' => env('VITE_PUSHER_PORT'),
-            'authEndpoint' => env('PUSHER_AUTH', true) ? '/broadcasting/auth' : null,
+            'authEndpoint' => '/broadcasting/auth',
             'disableStats' => true,
             'encrypted' => true,
-            'forceTLS' => env('VITE_PUSHER_SCHEME', 'http') === 'https',
-            'enabledTransports' => explode('|', env('VITE_PUSHER_TRANSPORTS', 'ws|wss'))
+            'forceTLS' => false,
         ],
 
     ],
