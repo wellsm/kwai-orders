@@ -12,6 +12,8 @@ class Post extends Model
     use SoftDeletes;
     use HasFactory;
 
+    public const CACHE_SYNCING = '%s-syncing';
+
     protected $fillable = [
         'id',
         'team_id',

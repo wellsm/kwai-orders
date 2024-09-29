@@ -18,6 +18,7 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Number;
 use Malzariey\FilamentDaterangepickerFilter\Fields\DateRangePicker;
 
@@ -34,13 +35,27 @@ class PostResource extends Resource
                 //
             ]);
     }
-    
+
     public static function table(Table $table): Table
     {
+        $syncing = Cache::has(sprintf(Post::CACHE_SYNCING, Filament::getTenant()->getUsername()));
+
         return $table
             ->striped()
+            ->modifyQueryUsing(fn (Builder $query) => $query->when($syncing, fn (Builder $query) => $query->whereDate('updated_at', '>', now())))
             ->description('Ultima sincronização: ' . (Filament::getTenant()->getSyncedAt()?->format('d/m/Y H:i:s') ?? ' N/A '))
             ->deferLoading()
+            ->emptyStateIcon('heroicon-o-clock')
+            ->emptyStateHeading(
+                $syncing
+                    ? 'Sincronizando...'
+                    : 'Sem registros'
+            )
+            ->emptyStateDescription(
+                $syncing
+                    ? str('Sincronizando suas postagens<br>Esse processo pode demorar alguns minutos')->toHtmlString()
+                    : str('Clique no botão de [Sincronizar Posts]<br>Somente postagens publicas são sincronizadas')->toHtmlString()
+            )
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('id')

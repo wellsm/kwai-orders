@@ -5,6 +5,8 @@ namespace App\Jobs;
 use App\Models\Post;
 use App\Models\Team;
 use DateTime;
+use Filament\Notifications\Actions\Action;
+use Filament\Notifications\Notification;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\Utils;
 use GuzzleHttp\Psr7\Response;
@@ -47,6 +49,22 @@ class ProfileVerify implements ShouldQueue, ShouldBeUnique
 
         $this->team->setVerifiedAt(new DateTime());
         $this->team->save();
+
+        Cache::delete(sprintf(Post::CACHE_SYNCING, $this->team->getUsername()));
+
+        Notification::make()
+            ->title('Sincronização finalizada')
+            ->body('Suas postagens foram sincronizadas')
+            ->success()
+            ->persistent()
+            ->icon('heroicon-o-hand-thumb-up')
+            ->actions([
+                Action::make('reload')
+                    ->label('Ver Posts')
+                    ->button()
+                    ->url(route('filament.admin.resources.posts.index', $this->team)),
+            ])
+            ->broadcast($this->team->members);
     }
 
     private function getResponses(Collection $products): array

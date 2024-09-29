@@ -6,7 +6,6 @@ use App\Filament\Resources\PostResource;
 use App\Jobs\ProfileSync;
 use App\Models\Post;
 use App\Models\Team;
-use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Facades\Filament;
 use Filament\Resources\Components\Tab;
@@ -14,6 +13,7 @@ use Filament\Resources\Pages\ManageRecords;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\MaxWidth;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 
 class ManagePosts extends ManageRecords
 {
@@ -45,48 +45,65 @@ class ManagePosts extends ManageRecords
                         ->markdown()
                         ->toHtmlString()
                 )
-                ->action(fn () => ProfileSync::dispatch($team))
+                ->action(fn () => $this->sync($team))
         ];
+    }
+
+    private function sync(Team $team): void
+    {
+        Cache::put(sprintf(Post::CACHE_SYNCING, $team->getUsername()), 1);
+
+        ProfileSync::dispatch($team);
     }
 
     public function getTabs(): array
     {
+        $syncing = Cache::has(sprintf(Post::CACHE_SYNCING, Filament::getTenant()->getUsername()));
+
         return [
             'all' => Tab::make()
                 ->label('Todos')
                 ->badge(
-                    Post::query()
-                        ->where('team_id', Filament::getTenant()->id)
-                        ->where('notify', true)
-                        ->count()
+                    $syncing
+                        ? 0 
+                        : Post::query()
+                            ->where('team_id', Filament::getTenant()->id)
+                            ->where('notify', true)
+                            ->count()
                 ),
             'out-of-stock' => Tab::make()
                 ->label('Esgotados')
                 ->badge(
-                    Post::query()
-                        ->whereHas('product', fn(Builder $query) => $query->where('quantity', 0))
-                        ->whereHas('team', fn(Builder $query) => $query->where('id', Filament::getTenant()->id)->whereNotNull('verified_at'))
-                        ->where('notify', true)
-                        ->count()
+                    $syncing
+                        ? 0 
+                        : Post::query()
+                            ->whereHas('product', fn(Builder $query) => $query->where('quantity', 0))
+                            ->whereHas('team', fn(Builder $query) => $query->where('id', Filament::getTenant()->id)->whereNotNull('verified_at'))
+                            ->where('notify', true)
+                            ->count()
                 )
                 ->modifyQueryUsing(fn(Builder $query) => $query->whereHas('product', fn(Builder $query) => $query->where('quantity', 0))),
             'without-product' => Tab::make()
                 ->label('Sem Produto')
                 ->badge(
-                    Post::query()
-                        ->where('team_id', Filament::getTenant()->id)
-                        ->whereNull('product_id')
-                        ->where('notify', true)
-                        ->count()
+                    $syncing
+                        ? 0 
+                        : Post::query()
+                            ->where('team_id', Filament::getTenant()->id)
+                            ->whereNull('product_id')
+                            ->where('notify', true)
+                            ->count()
                 )
                 ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('product_id')->orderBy('notify', 'DESC')),
             'dont-notify' => Tab::make()
                 ->label('Não Notificar')
                 ->badge(
-                    Post::query()
-                        ->where('team_id', Filament::getTenant()->id)
-                        ->where('notify', false)
-                        ->count()
+                    $syncing
+                        ? 0 
+                        : Post::query()
+                            ->where('team_id', Filament::getTenant()->id)
+                            ->where('notify', false)
+                            ->count()
                 )
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('notify', false)),
         ];
