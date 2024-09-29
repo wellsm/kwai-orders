@@ -26,7 +26,7 @@ return [
             'authEndpoint' => '/broadcasting/auth',
             'disableStats' => true,
             'encrypted' => true,
-            'forceTLS' => false,
+            'forceTLS' => env('PUSHER_SCHEME', 'http') === 'https',
             'enabledTransports' => ['ws', 'wss']
         ],
 
