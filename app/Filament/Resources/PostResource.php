@@ -48,12 +48,12 @@ class PostResource extends Resource
             ->emptyStateIcon('heroicon-o-clock')
             ->emptyStateHeading(
                 $syncing
-                    ? 'Sincronizando...'
+                    ? 'Sincronizando suas postagens'
                     : 'Sem registros'
             )
             ->emptyStateDescription(
                 $syncing
-                    ? str('Sincronizando suas postagens<br>Esse processo pode demorar alguns minutos')->toHtmlString()
+                    ? str('Esse processo pode demorar alguns minutos')->toHtmlString()
                     : str('Clique no botão de [Sincronizar Posts]<br>Somente postagens publicas são sincronizadas')->toHtmlString()
             )
             ->defaultSort('created_at', 'desc')

@@ -52,10 +52,16 @@ class OrderResource extends Resource
                     ->alignCenter(),
                 TextColumn::make('price')
                     ->label('Preço')
-                    ->money(),
+                    ->money()
+                    ->summarize([
+                        Sum::make()->money()->label('')
+                    ]),
                 TextColumn::make('quantity')
                     ->label('Qtd')
-                    ->alignCenter(),
+                    ->alignCenter()
+                    ->summarize([
+                        Sum::make()->label('')
+                    ]),
                 TextColumn::make('revenue')
                     ->label('Comissão')
                     ->money()
