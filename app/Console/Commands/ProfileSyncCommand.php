@@ -16,8 +16,6 @@ class ProfileSyncCommand extends Command
     private const OPTION_PROFILE = 'profile';
     private const OPTION_TIME    = 'time';
 
-    
-
     public function handle()
     {
         $start   = microtime(true);
@@ -43,7 +41,6 @@ class ProfileSyncCommand extends Command
         if (
             empty($time)
             || Carbon::parse($time)->startOfMinute()->notEqualTo($minute)
-            || $team->getSyncedAt()?->isToday()
         ) {
             return 0;
         }

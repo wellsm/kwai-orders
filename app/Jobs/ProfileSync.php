@@ -19,6 +19,10 @@ class ProfileSync implements ShouldQueue, ShouldBeUnique
 {
     use Queueable;
 
+    private const SYNC_MESSAGE   = '%s - %s - Syncing';
+    private const CURSOR_MESSAGE = '%s - %s - Cursor: %s';
+    private const POSTS_MESSAGE  = '%s - %s - Posts: %s';
+
     private const NO_MORE  = 'no_more';
     private const ENDPOINT = 'https://www.kwai.com/rest/o/w/pc/feed/profile';
     private const PAYLOAD  = [
@@ -36,7 +40,8 @@ class ProfileSync implements ShouldQueue, ShouldBeUnique
 
     public function handle(): void
     {
-        Log::channel('console')->info(date('Y-m-d H:i:s') . ' - Syncing Profile: @' . $this->team->getUsername());
+        Log::channel('console')
+            ->info(sprintf(self::SYNC_MESSAGE, date('Y-m-d H:i:s'), $this->team->getUsername()));
 
         $feeds = $this->getFeeds($this->team->getUsername());
 
@@ -73,7 +78,8 @@ class ProfileSync implements ShouldQueue, ShouldBeUnique
         $this->team->setSyncedAt(new DateTime());
         $this->team->save();
 
-        Log::channel('console')->info(date('Y-m-d H:i:s') . ' - Posts: ' . count($feeds));
+        Log::channel('console')
+            ->info(sprintf(self::POSTS_MESSAGE, date('Y-m-d H:i:s'), $this->team->getUsername(), count($feeds)));
 
         ProfileVerify::dispatch($this->team);
     }
@@ -89,7 +95,8 @@ class ProfileSync implements ShouldQueue, ShouldBeUnique
 
         usleep((int) (1000000 * .5));
 
-        Log::channel('console')->info(date('Y-m-d H:i:s') . ' - Cursor: ' .  $cursor);
+        Log::channel('console')
+            ->info(sprintf(self::CURSOR_MESSAGE, date('Y-m-d H:i:s'), $this->team->getUsername(), $cursor));
 
         return $this->getFeeds($profile, $feeds, $response->getCursor());
     }

@@ -24,7 +24,8 @@ class ProfileVerify implements ShouldQueue, ShouldBeUnique
 {
     use Queueable;
 
-    private const BATCH_MESSAGE = '%s - Success: %d - Left: %d';
+    private const COUNT_MESSAGE = '%s - %s - Count: %d';
+    private const BATCH_MESSAGE = '%s - %s - Success: %d';
 
     private const BASE_URL_TO_VERIFY = 'https://m-shop.kwai.com/rest/o/ecom/customer/item/info?itemId=%s';
     private const CACHE_RESPONSE_KEY = 'product-%s';
@@ -88,12 +89,15 @@ class ProfileVerify implements ShouldQueue, ShouldBeUnique
         $products  = $products->filter(fn (int $id) => !isset($responses[$id]));
         $responses = array_values(array_filter($responses));
 
+        Log::channel('console')
+            ->info(sprintf(self::COUNT_MESSAGE, date('Y-m-d H:i:s'), $this->team->getUsername(), $products->count()));
+
         foreach ($products->chunk(10) as $items) {
             $responses = array_merge($responses, retry(3, fn () => $this->getNewResponses($items), 500));
             $success   = count(array_filter($responses));
 
             Log::channel('console')
-                ->info(sprintf(self::BATCH_MESSAGE, date('Y-m-d H:i:s'), $success, $products->count() - $success));
+                ->info(sprintf(self::BATCH_MESSAGE, date('Y-m-d H:i:s'), $this->team->getUsername(), $success));
         }
 
         return $responses;

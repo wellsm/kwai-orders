@@ -28,7 +28,7 @@ class ManagePosts extends ManageRecords
     {
         /** @var Team */
         $team = Filament::getTenant();
-        $date = $team->getSyncedAt()?->format('d/m/Y H:i:s') ?? 'N/A';
+        $date = $team->getVerifiedAt()?->format('d/m/Y H:i:s') ?? 'N/A';
 
         return [
             CreateAction::make('sync')
@@ -36,10 +36,11 @@ class ManagePosts extends ManageRecords
                 ->createAnother(false)
                 ->outlined()
                 ->disabled(
-                    $team->getSyncedAt()?->addHours(6)?->isFuture() ?? false
+                    $team->getVerifiedAt()?->addHours(6)?->isFuture() ?? false
                 )
                 ->requiresConfirmation()
                 ->modalAlignment(Alignment::Center)
+                ->modalHeading('Sincronizar Posts')
                 ->modalDescription(
                     str("Ultima sincronização: **{$date}**<br/>Você poderá realizar essa ação novamente após **6 horas**<br/>Aguarde, pode demorar alguns minutos")
                         ->markdown()
