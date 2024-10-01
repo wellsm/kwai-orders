@@ -18,6 +18,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ProfileVerify implements ShouldQueue, ShouldBeUnique
 {
@@ -42,8 +43,17 @@ class ProfileVerify implements ShouldQueue, ShouldBeUnique
             ->unique()
             ->values();
 
-        $results = $this->getResponses($products);
+        try {
+            $this->onSuccessHandle(
+                results: $this->getResponses($products)
+            );
+        } catch (Throwable $e) {
+            $this->onErrorHandle($e);
+        }  
+    }
 
+    private function onSuccessHandle(array $results): void
+    {
         DB::table('products')
             ->upsert($results, ['id'], ['quantity']);
 
@@ -67,6 +77,11 @@ class ProfileVerify implements ShouldQueue, ShouldBeUnique
             ->broadcast($this->team->members);
     }
 
+    private function onErrorHandle(Throwable $e): void
+    {
+        Cache::delete(sprintf(Post::CACHE_SYNCING, $this->team->getUsername()));
+    }
+
     private function getResponses(Collection $products): array
     {
         $responses = $this->getCachedResponses($products);
@@ -74,7 +89,7 @@ class ProfileVerify implements ShouldQueue, ShouldBeUnique
         $responses = array_values(array_filter($responses));
 
         foreach ($products->chunk(10) as $items) {
-            $responses = array_merge($responses, $this->getNewResponses($items));
+            $responses = array_merge($responses, retry(3, fn () => $this->getNewResponses($items), 500));
             $success   = count(array_filter($responses));
 
             Log::channel('console')
@@ -97,8 +112,8 @@ class ProfileVerify implements ShouldQueue, ShouldBeUnique
     {
         $promises = [];
         $client   = new Client([
-            RequestOptions::TIMEOUT         => 10,
-            RequestOptions::CONNECT_TIMEOUT => 10,
+            RequestOptions::TIMEOUT         => 20,
+            RequestOptions::CONNECT_TIMEOUT => 20,
         ]);
 
         foreach ($products as $id) {
