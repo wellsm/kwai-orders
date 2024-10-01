@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use DateTime;
 use Exception;
+use Symfony\Component\Mailer\Exception\UnexpectedResponseException;
 
 class ProfileSync implements ShouldQueue, ShouldBeUnique
 {
@@ -86,7 +87,7 @@ class ProfileSync implements ShouldQueue, ShouldBeUnique
             return $feeds;
         }
 
-        usleep((int) (1000000 * .25));
+        usleep((int) (1000000 * .5));
 
         Log::channel('console')->info(date('Y-m-d H:i:s') . ' - Cursor: ' .  $cursor);
 
@@ -115,7 +116,11 @@ class ProfileSync implements ShouldQueue, ShouldBeUnique
     private function getCachedHttpResponse(array $payload): array
     {
         $key  = sprintf(self::CACHE_POSTS_KEY, $payload['userId'], (string) ($payload['pcursor'] ?? null));
-        $data = Cache::remember($key, self::CACHE_POSTS_TTL, fn () => $this->getHttpResponse($payload));
+        $data = Cache::remember(
+            key: $key, 
+            ttl: self::CACHE_POSTS_TTL,
+            callback: fn () => retry(3, fn () => $this->getHttpResponse($payload), 500)
+        );
 
         return $data;
     }
@@ -139,9 +144,14 @@ class ProfileSync implements ShouldQueue, ShouldBeUnique
         ]);
 
         $response = curl_exec($curl);
+        $response = json_decode($response, true);
 
         curl_close($curl);
 
-        return json_decode($response, true);
+        if (!isset($response['feeds'])) {
+            throw new UnexpectedResponseException();
+        }
+
+        return $response;
     }
 }

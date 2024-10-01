@@ -119,7 +119,7 @@ class BestSellers extends ChartWidget
     {
         $filter = $this->filter ?? self::FILTER_YESTERDAY;
         $days   = match ($filter) {
-            self::FILTER_YESTERDAY => [1, 1],
+            self::FILTER_YESTERDAY => [1, -1],
             self::FILTER_TODAY     => 0,
             self::FILTER_7_DAYS    => 6,
             self::FILTER_WEEK      => (int) ceil(now()->startOfWeek()->diffInDays(now())),
