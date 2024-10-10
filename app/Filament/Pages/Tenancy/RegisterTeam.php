@@ -3,12 +3,14 @@
 namespace App\Filament\Pages\Tenancy;
 
 use App\Enums\Plan;
+use App\Models\Team;
 use App\Rules\KwaiProfile;
 use App\Services\Team\Kwai;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Tenancy\RegisterTenant;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
@@ -18,7 +20,7 @@ class RegisterTeam extends RegisterTenant
     {
         return 'Adicionar Conta';
     }
- 
+
     public function form(Form $form): Form
     {
         return $form
@@ -48,16 +50,19 @@ class RegisterTeam extends RegisterTenant
         return array_merge($data, [
             'url'      => $response->getUrl(),
             'username' => $response->getUsername(),
+            'slug'     => $response->getUsername(),
             'name'     => $response->getName(),
             'avatar'   => $response->getAvatar(),
             'posts'    => $response->getFeeds()->count(),
-            'slug'     => $response->getUsername(),
             'plan'     => Plan::Basic
         ]);
     }
- 
-    protected function afterRegister(): void
+
+    protected function handleRegistration(array $data): Model
     {
-        $this->tenant->members()->attach(Auth::user());
+        $team = Team::query()->create($data);
+        $team->members()->attach(Auth::user());
+
+        return $team;
     }
 }

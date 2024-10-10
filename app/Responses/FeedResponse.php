@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Responses;
 
-class FeedResponse
+readonly class FeedResponse
 {
     public function __construct(
         private array $feeds,

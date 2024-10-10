@@ -2,8 +2,10 @@
 
 namespace App\Filament\Pages\Tenancy;
 
+use App\Filament\Pages\Dashboard;
 use App\Rules\KwaiProfile;
 use App\Services\Team\Kwai;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -38,7 +40,7 @@ class EditTeamProfile extends EditTenantProfile
                 TextInput::make('url')
                     ->label('URL do Perfil')
                     ->required()
-                    ->rules([new KwaiProfile()]),
+                    ->rules([new KwaiProfile(Filament::getTenant())]),
             ]);
     }
 
@@ -59,9 +61,15 @@ class EditTeamProfile extends EditTenantProfile
         return array_merge($data, [
             'url'      => $response->getUrl(),
             'username' => $response->getUsername(),
+            'slug'     => $response->getUsername(),
             'name'     => $response->getName(),
             'avatar'   => $response->getAvatar(),
             'posts'    => $response->getFeeds()->count()
         ]);
+    }
+
+    protected function getRedirectUrl(): ?string
+    {
+        return Dashboard::getUrl(tenant: $this->tenant);
     }
 }
