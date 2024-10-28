@@ -150,15 +150,16 @@ class ProfileSync implements ShouldQueue, ShouldBeUnique
         $curl = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_URL => self::ENDPOINT,
+            CURLOPT_URL            => self::ENDPOINT,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_ENCODING       => '',
+            CURLOPT_MAXREDIRS      => 10,
+            CURLOPT_TIMEOUT        => 15,
+            CURLOPT_CONNECTTIMEOUT => 15,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => json_encode($payload),
-            CURLOPT_HTTPHEADER => [
+            CURLOPT_CUSTOMREQUEST  => 'POST',
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json'
             ],
         ]);

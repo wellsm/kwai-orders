@@ -26,6 +26,8 @@ class KwaiProfile implements ValidationRule
 
         if (empty($response)) {
             $fail('Perfil não encontrado, verifique a URL informada');
+
+            return;
         }
 
         $team = Team::query()

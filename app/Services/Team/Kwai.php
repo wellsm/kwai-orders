@@ -32,7 +32,8 @@ class Kwai
                 'userId'     => $profile,
                 'fromPage'   => 'PC_PROFILE',
                 'beforePage' => '',
-                'count'      => 1
+                'pcursor'    => '',
+                'count'      => 50
             ])->json()
         );
 
