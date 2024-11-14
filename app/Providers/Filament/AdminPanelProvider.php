@@ -69,8 +69,12 @@ class AdminPanelProvider extends PanelProvider
             ->tenantRegistration(RegisterTeam::class)
             ->tenantProfile(EditTeamProfile::class)
             ->tenantMenuItems([
-                'register' => MenuItem::make()->label('Adicionar Conta'),
-                'profile'  => MenuItem::make()->label('Alterar Conta')
+                'register' => MenuItem::make()
+                    ->label('Adicionar Conta')
+                    ->visible(fn () => Auth::id() === 1),
+                'profile' => MenuItem::make()
+                    ->label('Alterar Conta')
+                    ->visible(fn () => Auth::id() === 1)
             ])
             ->plugins([
                 FilamentLaravelLogPlugin::make()

@@ -72,6 +72,11 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->teams()->whereKey($tenant)->exists();
     }
 
+    public function getId(): int
+    {
+        return $this->getAttribute('id');
+    }
+
     public function getEmail(): string
     {
         return $this->getAttribute('email');
