@@ -1,6 +1,5 @@
 <?php
 
-use App\Enums\Plan;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +15,7 @@ return new class extends Migration
 
         DB::table('teams')
             ->update([
-                'plan' => Plan::Basic->value
+                'plan' => 'basic'
             ]);
     }
 

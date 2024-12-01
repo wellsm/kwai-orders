@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\Role;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms\Components\Select;
@@ -12,6 +13,7 @@ use Filament\Support\Colors\Color;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
@@ -32,6 +34,9 @@ class UserResource extends Resource
                     ->label('Email')
                     ->email()
                     ->disabled(),
+                Select::make('role')
+                    ->options(Role::ROLES_OPTIONS)
+                    ->selectablePlaceholder(false),
                 Select::make('teams')
                     ->multiple()
                     ->relationship(name: 'teams', titleAttribute: 'name')
@@ -41,6 +46,9 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
+        /** @var User */
+        $user = Auth::user();
+
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -49,6 +57,9 @@ class UserResource extends Resource
                     ->label('E-Mail')
                     ->badge()
                     ->color(Color::Blue),
+                TextColumn::make('role')
+                    ->label('Papel')
+                    ->badge(),
                 TextColumn::make('email_verified_at')
                     ->label('Verificado Em')
                     ->dateTime(),
@@ -65,7 +76,8 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible($user->isRole(Role::SuperAdmin)),
             ])
             ->bulkActions([
                 //

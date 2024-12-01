@@ -2,8 +2,9 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\Role;
+use App\Models\User;
 use App\Settings\GeneralSettings;
-use Filament\Forms;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -45,6 +46,9 @@ class ManageSettings extends SettingsPage
 
     public static function canAccess(): bool
     {
-        return Auth::user()->id === 1;
+        /** @var User */
+        $user = Auth::user();
+
+        return $user->isRole(Role::SuperAdmin);
     }
 }

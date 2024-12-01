@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Enums\Role;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
@@ -27,6 +28,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -39,18 +41,11 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+        'role'              => Role::class
+    ];
 
     public function canAccessPanel(Panel $panel): bool
     {
@@ -80,5 +75,10 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function getEmail(): string
     {
         return $this->getAttribute('email');
+    }
+
+    public function isRole(Role $role): bool
+    {
+        return $this->getAttribute('role')->allowed($role);
     }
 }
