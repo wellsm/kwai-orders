@@ -32,6 +32,7 @@ class OrderResource extends Resource
     {
         return $table
             ->striped()
+            ->paginated([10, 25, 50, 100])
             ->pluralModelLabel('Pedidos')
             ->defaultSort('created_at', 'desc')
             ->columns([

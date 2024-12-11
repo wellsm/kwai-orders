@@ -31,6 +31,7 @@ class RevenueResource extends Resource
     {
         return $table
             ->striped()
+            ->paginated([10, 25, 50, 100])
             ->pluralModelLabel('Receitas')
             ->defaultSort('created_at', 'desc')
             ->columns([

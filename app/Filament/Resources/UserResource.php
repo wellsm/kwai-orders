@@ -50,6 +50,10 @@ class UserResource extends Resource
         $user = Auth::user();
 
         return $table
+            ->striped()
+            ->paginated([10, 25, 50, 100])
+            ->pluralModelLabel('Usuários')
+            ->modelLabel('Usuário')
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome'),
@@ -77,11 +81,17 @@ class UserResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
+                    ->modelLabel('Usuário')
                     ->visible($user->isRole(Role::SuperAdmin)),
             ])
             ->bulkActions([
                 //
             ]);
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Usuários';
     }
 
     public static function getPages(): array

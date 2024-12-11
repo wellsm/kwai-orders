@@ -42,6 +42,7 @@ class PostResource extends Resource
 
         return $table
             ->striped()
+            ->paginated([10, 25, 50, 100])
             ->modifyQueryUsing(fn (Builder $query) => $query->when($syncing, fn (Builder $query) => $query->whereDate('updated_at', '>', now())))
             ->description('Ultima sincronização: ' . (Filament::getTenant()->getVerifiedAt()?->format('d/m/Y H:i:s') ?? ' N/A '))
             ->deferLoading()
